@@ -532,7 +532,6 @@ export const createImagePreview = async (file: File): Promise<string | null> => 
     });
 };
 
-
 /**
  * Filter and organize AI mode configs into Wave and custom provider groups
  * Returns organized configs that should be displayed based on settings and premium status
@@ -589,6 +588,18 @@ export function getModeDisplayName(config: AIModeConfigType): string {
     const provider = config["ai:provider"];
     const model = config["ai:model"];
     const azureResourceName = config["ai:azureresourcename"];
+    const mode = (config as any).mode;
+
+    // Patch 2.2 Rebranding
+    if (mode === "waveai@quick") {
+        return "GPT-5-mini (wave provider)";
+    }
+    if (mode === "waveai@balanced") {
+        return "GPT 5.1 (wave provider)";
+    }
+    if (mode === "waveai@deep") {
+        return "GPT 5.1+ (wave provider)";
+    }
 
     if (provider === "azure-legacy") {
         return `${azureResourceName || "unknown"} (azure)`;

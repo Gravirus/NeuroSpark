@@ -70,6 +70,11 @@ export async function createBuilderWindow(appId: string): Promise<BuilderWindowT
         },
     });
 
+    // Remove menu bar on Windows for builder windows (same as regular windows)
+    if (unamePlatform === "win32") {
+        builderWindow.setMenu(null);
+    }
+
     if (isDevVite) {
         await builderWindow.loadURL(`${process.env.ELECTRON_RENDERER_URL}/index.html`);
     } else {

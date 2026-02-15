@@ -10,7 +10,7 @@ Tsunami uses separate types for different phases of the rendering pipeline:
 
 - **VDomElem**: Input format used by developers (JSX-like elements created with `vdom.H()`)
 - **ComponentImpl**: Internal shadow tree that maintains component identity and state across renders
-- **RenderedElem**: Output format sent to the frontend with populated WaveIds
+- **RenderedElem**: Output format sent to the frontend with populated NeuroSpark IDs
 
 This separation mirrors React's approach where JSX elements, Fiber nodes, and DOM operations use different data structures optimized for their specific purposes.
 
@@ -20,7 +20,7 @@ The `ComponentImpl` structure is Tsunami's equivalent to React's Fiber nodes. It
 
 Each ComponentImpl contains:
 
-- **Identity fields**: WaveId (unique identifier), Tag (component type), Key (for reconciliation)
+- **Identity fields**: NeuroSpark ID (unique identifier), Tag (component type), Key (for reconciliation)
 - **State management**: Hooks array for React-like state and effects
 - **Content organization**: Exactly one of three mutually exclusive patterns
 

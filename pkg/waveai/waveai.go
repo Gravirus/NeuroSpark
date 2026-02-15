@@ -7,6 +7,7 @@ import (
 	"context"
 	"log"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/wavetermdev/waveterm/pkg/telemetry"
@@ -48,6 +49,11 @@ type AIBackend interface {
 }
 
 func IsCloudAIRequest(opts *wshrpc.WaveAIOptsType) bool {
+	// Проверяем переменную окружения первым делом
+	if os.Getenv("WAVETERM_DISABLE_CLOUD_AI") != "" {
+		return false
+	}
+
 	if opts == nil {
 		return true
 	}

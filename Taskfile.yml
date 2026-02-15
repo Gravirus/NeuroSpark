@@ -4,7 +4,7 @@
 version: "3"
 
 vars:
-    APP_NAME: "Wave"
+    APP_NAME: "NeuroSpark"
     BIN_DIR: "bin"
     VERSION:
         sh: node version.cjs
@@ -12,7 +12,7 @@ vars:
     DATE: '{{if eq OS "windows"}}powershell Get-Date -UFormat{{else}}date{{end}}'
     ARTIFACTS_BUCKET: waveterm-github-artifacts/staging-w2
     RELEASES_BUCKET: dl.waveterm.dev/releases-w2
-    WINGET_PACKAGE: CommandLine.Wave
+    WINGET_PACKAGE: CommandLine.NeuroSpark
 
 tasks:
     electron:dev:
@@ -424,11 +424,11 @@ tasks:
               vars:
                   GOOS: darwin
                   GOARCH: arm64
-            - cp dist/bin/wsh-{{.VERSION}}-darwin.arm64 ~/Library/Application\ Support/waveterm-dev/bin/wsh
+            - cp dist/bin/wsh-{{.VERSION}}-darwin.arm64 ~/Library/Application\ Support/neurospark-dev/bin/wsh
 
     dev:clearconfig:
-        desc: Clear the config directory for waveterm-dev
-        cmd: "{{.RMRF}} ~/.config/waveterm-dev"
+        desc: Clear the config directory for neurospark-dev
+        cmd: "{{.RMRF}} ~/.config/neurospark-dev"
 
     dev:cleardata:
         desc: Clear the data directory for waveterm-dev
@@ -453,17 +453,17 @@ tasks:
     dev:cleardata:windows:
         internal: true
         platforms: [windows]
-        cmd: '{{.RMRF}} %LOCALAPPDATA%\waveterm-dev\Data'
+        cmd: '{{.RMRF}} %LOCALAPPDATA%\neurospark-dev\Data'
 
     dev:cleardata:linux:
         internal: true
         platforms: [linux]
-        cmd: "rm -rf ~/.local/share/waveterm-dev"
+        cmd: "rm -rf ~/.local/share/neurospark-dev"
 
     dev:cleardata:macos:
         internal: true
         platforms: [darwin]
-        cmd: 'rm -rf ~/Library/Application\ Support/waveterm-dev'
+        cmd: 'rm -rf ~/Library/Application\ Support/neurospark-dev'
 
     npm:install:
         desc: Runs `npm install`

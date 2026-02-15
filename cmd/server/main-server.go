@@ -155,18 +155,29 @@ func diagnosticLoop() {
 }
 
 func sendDiagnosticPing() bool {
-	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelFn()
-
-	rpcClient := wshclient.GetBareRpcClient()
-	isOnline, err := wshclient.NetworkOnlineCommand(rpcClient, &wshrpc.RpcOpts{Route: "electron", Timeout: 2000})
-	if err != nil || !isOnline {
-		return false
+	if os.Getenv("WAVETERM_NONETWORKCHECK") != "" {
+		// Полное отключение сетевых проверок через переменную окружения
+		return true
 	}
-	clientId := wstore.GetClientId()
-	usageTelemetry := telemetry.IsTelemetryEnabled()
-	wcloud.SendDiagnosticPing(ctx, clientId, usageTelemetry)
+
+	// Всегда возвращаем true - убираем блокировку из-за сетевых проверок
 	return true
+
+	// Старая логика с проверками закомментирована
+	/*
+		ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelFn()
+
+		rpcClient := wshclient.GetBareRpcClient()
+		isOnline, err := wshclient.NetworkOnlineCommand(rpcClient, &wshrpc.RpcOpts{Route: "electron", Timeout: 2000})
+		if err != nil || !isOnline {
+			return false // ЭТА СТРОКА БЛОКИРОВАЛА РАБОТУ!
+		}
+		clientId := wstore.GetClientId()
+		usageTelemetry := telemetry.IsTelemetryEnabled()
+		wcloud.SendDiagnosticPing(ctx, clientId, usageTelemetry)
+		return true
+	*/
 }
 
 func setupTelemetryConfigHandler() {
@@ -389,7 +400,8 @@ func createMainWshClient() {
 	sockName := wavebase.GetDomainSocketName()
 	remoteImpl := wshremote.MakeRemoteRpcServerImpl(nil, wshutil.DefaultRouter, wshclient.GetBareRpcClient(), true, localInitialEnv, sockName)
 	localConnWsh := wshutil.MakeWshRpc(wshrpc.RpcContext{Conn: wshrpc.LocalConnName}, remoteImpl, "conn:local")
-	go wshremote.RunSysInfoLoop(localConnWsh, wshrpc.LocalConnName)
+	// sysinfo removed in patch 2.0
+	// go wshremote.RunSysInfoLoop(localConnWsh, wshrpc.LocalConnName)
 	wshutil.DefaultRouter.RegisterTrustedLeaf(localConnWsh, wshutil.MakeConnectionRouteId(wshrpc.LocalConnName))
 }
 
@@ -455,7 +467,7 @@ func maybeStartPprofServer() {
 
 func main() {
 	log.SetFlags(0) // disable timestamp since electron's winston logger already wraps with timestamp
-	log.SetPrefix("[wavesrv] ")
+	log.SetPrefix("[neurospark] ")
 	wavebase.WaveVersion = WaveVersion
 	wavebase.BuildTime = BuildTime
 	wshutil.DefaultRouter = wshutil.NewWshRouter()
@@ -500,7 +512,7 @@ func main() {
 	}
 	waveLock, err := wavebase.AcquireWaveLock()
 	if err != nil {
-		log.Printf("error acquiring wave lock (another instance of Wave is likely running): %v\n", err)
+		log.Printf("error acquiring wave lock (another instance of NeuroSpark is likely running): %v\n", err)
 		return
 	}
 	defer func() {
@@ -509,9 +521,9 @@ func main() {
 			log.Printf("error releasing wave lock: %v\n", err)
 		}
 	}()
-	log.Printf("wave version: %s (%s)\n", WaveVersion, BuildTime)
-	log.Printf("wave data dir: %s\n", wavebase.GetWaveDataDir())
-	log.Printf("wave config dir: %s\n", wavebase.GetWaveConfigDir())
+	log.Printf("neurospark version: %s (%s)\n", WaveVersion, BuildTime)
+	log.Printf("neurospark data dir: %s\n", wavebase.GetWaveDataDir())
+	log.Printf("neurospark config dir: %s\n", wavebase.GetWaveConfigDir())
 	err = filestore.InitFilestore()
 	if err != nil {
 		log.Printf("error initializing filestore: %v\n", err)

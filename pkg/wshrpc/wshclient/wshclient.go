@@ -184,6 +184,12 @@ func CreateSubBlockCommand(w *wshutil.WshRpc, data wshrpc.CommandCreateSubBlockD
 	return resp, err
 }
 
+// command "deleteapp", wshserver.DeleteAppCommand
+func DeleteAppCommand(w *wshutil.WshRpc, data wshrpc.CommandDeleteAppData, opts *wshrpc.RpcOpts) error {
+	_, err := sendRpcRequestCallHelper[any](w, "deleteapp", data, opts)
+	return err
+}
+
 // command "deleteappfile", wshserver.DeleteAppFileCommand
 func DeleteAppFileCommand(w *wshutil.WshRpc, data wshrpc.CommandDeleteAppFileData, opts *wshrpc.RpcOpts) error {
 	_, err := sendRpcRequestCallHelper[any](w, "deleteappfile", data, opts)

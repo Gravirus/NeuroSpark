@@ -31,7 +31,6 @@ import (
 	"github.com/wavetermdev/waveterm/pkg/wavebase"
 	"github.com/wavetermdev/waveterm/pkg/waveobj"
 	"github.com/wavetermdev/waveterm/pkg/web/sse"
-	"github.com/wavetermdev/waveterm/pkg/wps"
 	"github.com/wavetermdev/waveterm/pkg/wstore"
 )
 
@@ -40,8 +39,15 @@ const DefaultMaxTokens = 4 * 1024
 const BuilderMaxTokens = 24 * 1024
 
 var (
-	globalRateLimitInfo = &uctypes.RateLimitInfo{Unknown: true}
-	rateLimitLock       sync.Mutex
+	globalRateLimitInfo = &uctypes.RateLimitInfo{
+		Req:        999999999,  // Увеличено с 1000000 для удаления ограничений
+		ReqLimit:   999999999,  // Увеличено с 1000000 для удаления ограничений
+		PReq:       999999999,  // Увеличено с 1000000 для удаления ограничений
+		PReqLimit:  999999999,  // Увеличено с 1000000 для удаления ограничений
+		ResetEpoch: time.Now().Add(100 * 365 * 24 * time.Hour).Unix(), // Через 100 лет
+		Unknown:    false,
+	}
+	rateLimitLock sync.Mutex
 
 	activeChats = ds.MakeSyncMap[bool]() // key is chatid
 )
@@ -142,6 +148,9 @@ func shouldUseChatCompletionsAPI(model string) bool {
 }
 
 func shouldUsePremium() bool {
+	// Всегда разрешаем премиум функции - убираем искусственные ограничения
+	return true
+	/*
 	info := GetGlobalRateLimit()
 	if info == nil || info.Unknown {
 		return true
@@ -154,26 +163,25 @@ func shouldUsePremium() bool {
 		return true
 	}
 	return false
+	*/
 }
 
 func updateRateLimit(info *uctypes.RateLimitInfo) {
-	if info == nil {
-		return
-	}
-	rateLimitLock.Lock()
-	defer rateLimitLock.Unlock()
-	globalRateLimitInfo = info
-	go func() {
-		wps.Broker.Publish(wps.WaveEvent{
-			Event: wps.Event_WaveAIRateLimit,
-			Data:  info,
-		})
-	}()
+	return
 }
 
 func GetGlobalRateLimit() *uctypes.RateLimitInfo {
-	rateLimitLock.Lock()
-	defer rateLimitLock.Unlock()
+	if os.Getenv("WAVETERM_NOLIMITS") != "" {
+		// Полное отключение лимитов через переменную окружения
+		return &uctypes.RateLimitInfo{
+			Req:        999999999,
+			ReqLimit:   999999999,
+			PReq:       999999999,
+			PReqLimit:  999999999,
+			ResetEpoch: time.Now().Add(100 * 365 * time.Hour).Unix(),
+			Unknown:    false,
+		}
+	}
 	return globalRateLimitInfo
 }
 

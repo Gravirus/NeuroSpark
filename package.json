@@ -1,16 +1,16 @@
 {
-    "name": "waveterm",
+    "name": "neurospark",
     "author": {
         "name": "Command Line Inc",
         "email": "info@commandline.dev"
     },
-    "productName": "Wave",
+    "productName": "NeuroSpark",
     "description": "Open-Source AI-Native Terminal Built for Seamless Workflows",
     "license": "Apache-2.0",
     "version": "0.14.0",
-    "homepage": "https://waveterm.dev",
+    "homepage": "https://neurospark.dev",
     "build": {
-        "appId": "dev.commandline.waveterm"
+        "appId": "dev.commandline.neurospark"
     },
     "private": true,
     "main": "./dist/main/index.js",

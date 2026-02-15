@@ -278,6 +278,11 @@ declare global {
         blockdef: BlockDef;
     };
 
+    // wshrpc.CommandDeleteAppData
+    type CommandDeleteAppData = {
+        appid: string;
+    };
+
     // wshrpc.CommandDeleteAppFileData
     type CommandDeleteAppFileData = {
         appid: string;

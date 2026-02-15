@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 const MaxAppNameLength = 50;
 const AppNameRegex = /^[a-zA-Z0-9_-]+$/;
 
-function CreateNewWaveApp({ onCreateApp }: { onCreateApp: (appName: string) => Promise<void> }) {
+function CreateNewNeuroSparkApp({ onCreateApp }: { onCreateApp: (appName: string) => Promise<void> }) {
     const [newAppName, setNewAppName] = useState("");
     const [inputError, setInputError] = useState("");
     const [isCreating, setIsCreating] = useState(false);
@@ -50,7 +50,7 @@ function CreateNewWaveApp({ onCreateApp }: { onCreateApp: (appName: string) => P
 
     return (
         <div className="min-h-[80px]">
-            <h3 className="text-base font-medium mb-1 text-muted-foreground">Create New WaveApp</h3>
+            <h3 className="text-base font-medium mb-1 text-muted-foreground">Create New NeuroSpark App</h3>
             <div className="relative">
                 <div className="flex w-full">
                     <input
@@ -141,8 +141,27 @@ export function AppSelectionModal() {
             data: { "builder:appid": appIdToUse },
         });
         globalStore.set(atoms.builderAppId, appIdToUse);
-        document.title = `WaveApp Builder (${appIdToUse})`;
+        document.title = `NeuroSpark App Builder (${appIdToUse})`;
         getApi().setBuilderWindowAppId(appIdToUse);
+    };
+
+    const handleDeleteApp = async (appId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        
+        // Show confirmation
+        const confirmed = window.confirm(`Are you sure you want to delete the app "${getAppDisplayName(appId)}"? This action cannot be undone.`);
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await RpcApi.DeleteAppCommand(TabRpcClient, { appid: appId });
+            // Remove the deleted app from the list
+            setApps(apps.filter(app => app.appid !== appId));
+        } catch (err) {
+            console.error("Failed to delete app:", err);
+            setError(`Failed to delete app: ${err.message || String(err)}`);
+        }
     };
 
     const handleCreateNew = async (appName: string) => {
@@ -154,7 +173,7 @@ export function AppSelectionModal() {
             data: { "builder:appid": draftAppId },
         });
         globalStore.set(atoms.builderAppId, draftAppId);
-        document.title = `WaveApp Builder (${draftAppId})`;
+        document.title = `NeuroSpark App Builder (${draftAppId})`;
         getApi().setBuilderWindowAppId(draftAppId);
     };
 
@@ -182,7 +201,7 @@ export function AppSelectionModal() {
     return (
         <FlexiModal className="min-w-[600px] w-[600px] max-h-[90vh] overflow-y-auto">
             <div className="w-full px-2 pt-0 pb-4">
-                <h2 className="text-2xl mb-2">Select a WaveApp to Edit</h2>
+                <h2 className="text-2xl mb-2">Select a NeuroSpark App to Edit</h2>
 
                 {error && (
                     <div className="mb-6 px-4 py-3 bg-panel rounded">
@@ -195,13 +214,13 @@ export function AppSelectionModal() {
 
                 {apps.length > 0 && (
                     <div className="mb-2">
-                        <h3 className="text-base font-medium mb-1 text-muted-foreground">Existing WaveApps</h3>
+                        <h3 className="text-base font-medium mb-1 text-muted-foreground">Existing NeuroSpark Apps</h3>
                         <div className="space-y-2 max-h-[220px] overflow-y-auto">
                             {apps.map((appInfo) => (
-                                <button
+                                <div
                                     key={appInfo.appid}
+                                    className="w-full flex items-center justify-between px-4 py-1.5 bg-panel hover:bg-hover border border-border rounded transition-colors cursor-pointer group"
                                     onClick={() => handleSelectApp(appInfo.appid)}
-                                    className="w-full text-left px-4 py-1.5 bg-panel hover:bg-hover border border-border rounded transition-colors cursor-pointer"
                                 >
                                     <div className="flex items-center gap-3">
                                         <i className="fa-solid fa-cube self-center"></i>
@@ -212,7 +231,14 @@ export function AppSelectionModal() {
                                             </span>
                                         </div>
                                     </div>
-                                </button>
+                                    <button
+                                        onClick={(e) => handleDeleteApp(appInfo.appid, e)}
+                                        className="opacity-0 group-hover:opacity-100 p-2 hover:bg-error/20 rounded transition-all"
+                                        title="Delete app"
+                                    >
+                                        <i className="fa-solid fa-trash text-error"></i>
+                                    </button>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -226,7 +252,7 @@ export function AppSelectionModal() {
                     </div>
                 )}
 
-                <CreateNewWaveApp onCreateApp={handleCreateNew} />
+                <CreateNewNeuroSparkApp onCreateApp={handleCreateNew} />
             </div>
         </FlexiModal>
     );

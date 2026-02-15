@@ -8,16 +8,16 @@
     --color-primary: rgb(247, 247, 247); /* primary text color (headers, bold text) */
     --color-secondary: rgba(215, 218, 224, 0.7); /* secondary text */
     --color-muted: rgba(215, 218, 224, 0.5); /* muted, faint, small text */
-    --color-accent-50: rgb(236, 253, 232);
-    --color-accent-100: rgb(209, 250, 202);
-    --color-accent-200: rgb(167, 243, 168);
-    --color-accent-300: rgb(110, 231, 133);
-    --color-accent-400: rgb(88, 193, 66); /* main accent color */
-    --color-accent-500: rgb(63, 162, 51);
-    --color-accent-600: rgb(47, 133, 47);
-    --color-accent-700: rgb(34, 104, 43);
-    --color-accent-800: rgb(22, 81, 35);
-    --color-accent-900: rgb(15, 61, 29);
+    --color-accent-50: rgb(37, 99, 235);
+    --color-accent-100: rgb(37, 99, 235);
+    --color-accent-200: rgb(37, 99, 235);
+    --color-accent-300: rgb(37, 99, 235);
+    --color-accent-400: rgb(37, 99, 235); /* main accent color */
+    --color-accent-500: rgb(37, 99, 235);
+    --color-accent-600: rgb(37, 99, 235);
+    --color-accent-700: rgb(37, 99, 235);
+    --color-accent-800: rgb(37, 99, 235);
+    --color-accent-900: rgb(37, 99, 235);
     --color-error: rgb(229, 77, 46); /* use as bg w/ primary text */
     --color-warning: rgb(181, 137, 0); /* use as bg w/ primary text */
     --color-success: rgb(78, 154, 6); /* use as bg w/ primary text */

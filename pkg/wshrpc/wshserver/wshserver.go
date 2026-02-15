@@ -1052,6 +1052,13 @@ func (ws *WshServer) DeleteAppFileCommand(ctx context.Context, data wshrpc.Comma
 	return waveappstore.DeleteAppFile(data.AppId, data.FileName)
 }
 
+func (ws *WshServer) DeleteAppCommand(ctx context.Context, data wshrpc.CommandDeleteAppData) error {
+	if data.AppId == "" {
+		return fmt.Errorf("must provide an appId to DeleteAppCommand")
+	}
+	return waveappstore.DeleteApp(data.AppId)
+}
+
 func (ws *WshServer) RenameAppFileCommand(ctx context.Context, data wshrpc.CommandRenameAppFileData) error {
 	if data.AppId == "" {
 		return fmt.Errorf("must provide an appId to RenameAppFileCommand")

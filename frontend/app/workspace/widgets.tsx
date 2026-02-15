@@ -202,116 +202,6 @@ const AppsFloatingWindow = memo(
     }
 );
 
-const SettingsFloatingWindow = memo(
-    ({
-        isOpen,
-        onClose,
-        referenceElement,
-    }: {
-        isOpen: boolean;
-        onClose: () => void;
-        referenceElement: HTMLElement;
-    }) => {
-        const { refs, floatingStyles, context } = useFloating({
-            open: isOpen,
-            onOpenChange: onClose,
-            placement: "left-start",
-            middleware: [offset(-2), shift({ padding: 12 })],
-            whileElementsMounted: autoUpdate,
-            elements: {
-                reference: referenceElement,
-            },
-        });
-
-        const dismiss = useDismiss(context);
-        const { getFloatingProps } = useInteractions([dismiss]);
-
-        if (!isOpen) return null;
-
-        const menuItems = [
-            {
-                icon: "gear",
-                label: "Settings",
-                onClick: () => {
-                    const blockDef: BlockDef = {
-                        meta: {
-                            view: "waveconfig",
-                        },
-                    };
-                    createBlock(blockDef, false, true);
-                    onClose();
-                },
-            },
-            {
-                icon: "lightbulb",
-                label: "Tips",
-                onClick: () => {
-                    const blockDef: BlockDef = {
-                        meta: {
-                            view: "tips",
-                        },
-                    };
-                    createBlock(blockDef, true, true);
-                    onClose();
-                },
-            },
-            {
-                icon: "lock",
-                label: "Secrets",
-                onClick: () => {
-                    const blockDef: BlockDef = {
-                        meta: {
-                            view: "waveconfig",
-                            file: "secrets",
-                        },
-                    };
-                    createBlock(blockDef, false, true);
-                    onClose();
-                },
-            },
-            {
-                icon: "circle-question",
-                label: "Help",
-                onClick: () => {
-                    const blockDef: BlockDef = {
-                        meta: {
-                            view: "help",
-                        },
-                    };
-                    createBlock(blockDef);
-                    onClose();
-                },
-            },
-        ];
-
-        return (
-            <FloatingPortal>
-                <div
-                    ref={refs.setFloating}
-                    style={floatingStyles}
-                    {...getFloatingProps()}
-                    className="bg-modalbg border border-border rounded-lg shadow-xl p-2 z-50"
-                >
-                    {menuItems.map((item, idx) => (
-                        <div
-                            key={idx}
-                            className="flex items-center gap-3 px-3 py-2 rounded hover:bg-hoverbg cursor-pointer transition-colors text-secondary hover:text-white"
-                            onClick={item.onClick}
-                        >
-                            <div className="text-lg w-5 flex justify-center">
-                                <i className={makeIconClass(item.icon, false)}></i>
-                            </div>
-                            <div className="text-sm whitespace-nowrap">{item.label}</div>
-                        </div>
-                    ))}
-                </div>
-            </FloatingPortal>
-        );
-    }
-);
-
-SettingsFloatingWindow.displayName = "SettingsFloatingWindow";
-
 const Widgets = memo(() => {
     const fullConfig = useAtomValue(atoms.fullConfigAtom);
     const hasCustomAIPresets = useAtomValue(atoms.hasCustomAIPresetsAtom);
@@ -328,8 +218,6 @@ const Widgets = memo(() => {
 
     const [isAppsOpen, setIsAppsOpen] = useState(false);
     const appsButtonRef = useRef<HTMLDivElement>(null);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const settingsButtonRef = useRef<HTMLDivElement>(null);
 
     const checkModeNeeded = useCallback(() => {
         if (!containerRef.current || !measurementRef.current) return;
@@ -427,11 +315,17 @@ const Widgets = memo(() => {
                                 </div>
                             ) : null}
                             <div
-                                ref={settingsButtonRef}
                                 className="flex flex-col justify-center items-center w-full py-1.5 pr-0.5 text-secondary text-sm overflow-hidden rounded-sm hover:bg-hoverbg hover:text-white cursor-pointer"
-                                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                                onClick={() => {
+                                    const blockDef: BlockDef = {
+                                        meta: {
+                                            view: "waveconfig",
+                                        },
+                                    };
+                                    createBlock(blockDef, false, true);
+                                }}
                             >
-                                <Tooltip content="Settings & Help" placement="left" disable={isSettingsOpen}>
+                                <Tooltip content="Settings" placement="left">
                                     <div>
                                         <i className={makeIconClass("gear", true)}></i>
                                     </div>
@@ -466,11 +360,17 @@ const Widgets = memo(() => {
                             </div>
                         ) : null}
                         <div
-                            ref={settingsButtonRef}
                             className="flex flex-col justify-center items-center w-full py-1.5 pr-0.5 text-secondary text-lg overflow-hidden rounded-sm hover:bg-hoverbg hover:text-white cursor-pointer"
-                            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                            onClick={() => {
+                                const blockDef: BlockDef = {
+                                    meta: {
+                                        view: "waveconfig",
+                                    },
+                                };
+                                createBlock(blockDef, false, true);
+                            }}
                         >
-                            <Tooltip content="Settings & Help" placement="left" disable={isSettingsOpen}>
+                            <Tooltip content="Settings" placement="left">
                                 <div>
                                     <i className={makeIconClass("gear", true)}></i>
                                 </div>
@@ -492,13 +392,6 @@ const Widgets = memo(() => {
                     isOpen={isAppsOpen}
                     onClose={() => setIsAppsOpen(false)}
                     referenceElement={appsButtonRef.current}
-                />
-            )}
-            {settingsButtonRef.current && (
-                <SettingsFloatingWindow
-                    isOpen={isSettingsOpen}
-                    onClose={() => setIsSettingsOpen(false)}
-                    referenceElement={settingsButtonRef.current}
                 />
             )}
 

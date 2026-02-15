@@ -54,7 +54,7 @@ import {
 } from "./emain-window";
 import { ElectronWshClient, initElectronWshClient } from "./emain-wsh";
 import { getLaunchSettings } from "./launchsettings";
-import { configureAutoUpdater, updater } from "./updater";
+// Removed updater import
 
 const electronApp = electron.app;
 
@@ -277,7 +277,7 @@ electronApp.on("before-quit", (e) => {
             type: "question",
             buttons: ["Cancel", "Quit"],
             title: "Confirm Quit",
-            message: "Are you sure you want to quit Wave Terminal?",
+            message: "Are you sure you want to quit NeuroSpark?",
             defaultId: 0,
             cancelId: 0,
         });
@@ -289,7 +289,7 @@ electronApp.on("before-quit", (e) => {
         return;
     }
     setGlobalIsQuitting(true);
-    updater?.stop();
+    // updater.stop() removed
     if (unamePlatform == "win32") {
         // win32 doesn't have a SIGINT, so we just let electron die, which
         // ends up killing wavesrv via closing it's stdin.
@@ -370,76 +370,128 @@ globalEvents.on("windows-updated", () => {
 });
 
 async function appMain() {
-    // Set disableHardwareAcceleration as early as possible, if required.
-    const launchSettings = getLaunchSettings();
-    if (launchSettings?.["window:disablehardwareacceleration"]) {
-        console.log("disabling hardware acceleration, per launch settings");
-        electronApp.disableHardwareAcceleration();
-    }
-    const startTs = Date.now();
-    const instanceLock = electronApp.requestSingleInstanceLock();
-    if (!instanceLock) {
-        console.log("waveterm-app could not get single-instance-lock, shutting down");
-        setUserConfirmedQuit(true);
-        electronApp.quit();
-        return;
-    }
     try {
-        await runWaveSrv(handleWSEvent);
-    } catch (e) {
-        console.log(e.toString());
-    }
-    const ready = await getWaveSrvReady();
-    console.log("wavesrv ready signal received", ready, Date.now() - startTs, "ms");
-    await electronApp.whenReady();
-    configureAuthKeyRequestInjection(electron.session.defaultSession);
-    initIpcHandlers();
-
-    await sleep(10); // wait a bit for wavesrv to be ready
-    try {
-        initElectronWshClient();
-        initElectronWshrpc(ElectronWshClient, { authKey: AuthKey });
-        initMenuEventSubscriptions();
-    } catch (e) {
-        console.log("error initializing wshrpc", e);
-    }
-    const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
-    checkIfRunningUnderARM64Translation(fullConfig);
-    if (fullConfig?.settings?.["app:confirmquit"] != null) {
-        confirmQuit = fullConfig.settings["app:confirmquit"];
-    }
-    ensureHotSpareTab(fullConfig);
-    await relaunchBrowserWindows();
-    setTimeout(runActiveTimer, 5000); // start active timer, wait 5s just to be safe
-    setTimeout(sendDisplaysTDataEvent, 5000);
-
-    makeAndSetAppMenu();
-    makeDockTaskbar();
-    await configureAutoUpdater();
-    setGlobalIsStarting(false);
-    if (fullConfig?.settings?.["window:maxtabcachesize"] != null) {
-        setMaxTabCacheSize(fullConfig.settings["window:maxtabcachesize"]);
-    }
-
-    electronApp.on("activate", () => {
-        const allWindows = getAllWaveWindows();
-        if (allWindows.length === 0) {
-            fireAndForget(createNewWaveWindow);
+        // Set disableHardwareAcceleration as early as possible, if required.
+        const launchSettings = getLaunchSettings();
+        if (launchSettings?.["window:disablehardwareacceleration"]) {
+            console.log("disabling hardware acceleration, per launch settings");
+            electronApp.disableHardwareAcceleration();
         }
-    });
-    electron.powerMonitor.on("resume", () => {
-        console.log("system resumed from sleep, notifying server");
-        fireAndForget(async () => {
-            try {
-                await RpcApi.NotifySystemResumeCommand(ElectronWshClient, { noresponse: true });
-            } catch (e) {
-                console.log("error calling NotifySystemResumeCommand", e);
+        const startTs = Date.now();
+        const instanceLock = electronApp.requestSingleInstanceLock();
+        if (!instanceLock) {
+            console.log("waveterm-app could not get single-instance-lock, shutting down");
+            setUserConfirmedQuit(true);
+            electronApp.quit();
+            return;
+        }
+        
+        console.log("=== APP MAIN STARTUP ===");
+        console.log("Starting wavesrv...");
+        
+        try {
+            await runWaveSrv(handleWSEvent);
+        } catch (e) {
+            console.error("Failed to start wavesrv:", e);
+            
+            // Show user-friendly error dialog
+            if (electronApp.isReady()) {
+                electron.dialog.showErrorBox(
+                    "NeuroSpark Failed to Start",
+                    `Unable to start the application core:\n${e.message}\n\n` +
+                    "Please check:\n" +
+                    "1. Antivirus is not blocking the application\n" +
+                    "2. Windows Defender is not quarantining files\n" +
+                    "3. Try reinstalling NeuroSpark\n" +
+                    "4. Check Windows Event Viewer for more details"
+                );
+            }
+            
+            setUserConfirmedQuit(true);
+            electronApp.quit();
+            return;
+        }
+        
+        const ready = await getWaveSrvReady();
+        console.log("wavesrv ready signal received", ready, Date.now() - startTs, "ms");
+        
+        console.log("Waiting for Electron app to be ready...");
+        await electronApp.whenReady();
+        
+        console.log("Electron app is ready, initializing...");
+        configureAuthKeyRequestInjection(electron.session.defaultSession);
+        initIpcHandlers();
+
+        await sleep(10); // wait a bit for wavesrv to be ready
+        try {
+            initElectronWshClient();
+            initElectronWshrpc(ElectronWshClient, { authKey: AuthKey });
+            initMenuEventSubscriptions();
+        } catch (e) {
+            console.log("error initializing wshrpc", e);
+        }
+        
+        console.log("Fetching configuration...");
+        const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
+        checkIfRunningUnderARM64Translation(fullConfig);
+        if (fullConfig?.settings?.["app:confirmquit"] != null) {
+            confirmQuit = fullConfig.settings["app:confirmquit"];
+        }
+        
+        console.log("Creating browser windows...");
+        ensureHotSpareTab(fullConfig);
+        await relaunchBrowserWindows();
+        
+        console.log("Setting up timers and menus...");
+        setTimeout(runActiveTimer, 5000); // start active timer, wait 5s just to be safe
+        setTimeout(sendDisplaysTDataEvent, 5000);
+
+        makeAndSetAppMenu();
+        makeDockTaskbar();
+        // configureAutoUpdater() removed
+        setGlobalIsStarting(false);
+        if (fullConfig?.settings?.["window:maxtabcachesize"] != null) {
+            setMaxTabCacheSize(fullConfig.settings["window:maxtabcachesize"]);
+        }
+
+        console.log("=== APP INITIALIZATION COMPLETE ===");
+        
+        electronApp.on("activate", () => {
+            const allWindows = getAllWaveWindows();
+            if (allWindows.length === 0) {
+                fireAndForget(createNewWaveWindow);
             }
         });
-    });
-    const rawGlobalHotKey = launchSettings?.["app:globalhotkey"];
-    if (rawGlobalHotKey) {
-        registerGlobalHotkey(rawGlobalHotKey);
+        
+        electron.powerMonitor.on("resume", () => {
+            console.log("system resumed from sleep, notifying server");
+            fireAndForget(async () => {
+                try {
+                    await RpcApi.NotifySystemResumeCommand(ElectronWshClient, { noresponse: true });
+                } catch (e) {
+                    console.log("error calling NotifySystemResumeCommand", e);
+                }
+            });
+        });
+        
+        const rawGlobalHotKey = launchSettings?.["app:globalhotkey"];
+        if (rawGlobalHotKey) {
+            registerGlobalHotkey(rawGlobalHotKey);
+        }
+    } catch (error) {
+        console.error("Critical error in appMain:", error);
+        
+        // Show error to user
+        if (electronApp.isReady()) {
+            electron.dialog.showErrorBox(
+                "NeuroSpark Critical Error",
+                `An unexpected error occurred:\n${error.message}\n\n` +
+                "The application will now close. Please restart NeuroSpark."
+            );
+        }
+        
+        setUserConfirmedQuit(true);
+        electronApp.quit();
     }
 }
 

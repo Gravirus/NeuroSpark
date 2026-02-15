@@ -40,15 +40,5 @@
                 "view": "waveai"
             }
         }
-    },
-    "defwidget@sysinfo": {
-        "display:order": -1,
-        "icon": "chart-line",
-        "label": "sysinfo",
-        "blockdef": {
-            "meta": {
-                "view": "sysinfo"
-            }
-        }
     }
 }

@@ -147,6 +147,11 @@ class RpcApiType {
         return client.wshRpcCall("createsubblock", data, opts);
     }
 
+    // command "deleteapp" [call]
+    DeleteAppCommand(client: WshClient, data: CommandDeleteAppData, opts?: RpcOpts): Promise<void> {
+        return client.wshRpcCall("deleteapp", data, opts);
+    }
+
     // command "deleteappfile" [call]
     DeleteAppFileCommand(client: WshClient, data: CommandDeleteAppFileData, opts?: RpcOpts): Promise<void> {
         return client.wshRpcCall("deleteappfile", data, opts);

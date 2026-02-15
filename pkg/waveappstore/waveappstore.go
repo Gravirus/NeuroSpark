@@ -28,6 +28,8 @@ const (
 
 	ManifestFileName       = "manifest.json"
 	SecretBindingsFileName = "secret-bindings.json"
+
+	AppStoreDirName = "neurosparkapps"
 )
 
 var (
@@ -83,7 +85,7 @@ func GetAppDir(appId string) (string, error) {
 	}
 	appNS, appName, _ := ParseAppId(appId)
 	homeDir := wavebase.GetHomeDir()
-	return filepath.Join(homeDir, "waveapps", appNS, appName), nil
+	return filepath.Join(homeDir, AppStoreDirName, appNS, appName), nil
 }
 
 func copyDir(src, dst string) error {
@@ -457,7 +459,7 @@ func ListAllAppFiles(appId string) (*fileutil.ReadDirResult, error) {
 
 func ListAllApps() ([]wshrpc.AppInfo, error) {
 	homeDir := wavebase.GetHomeDir()
-	waveappsDir := filepath.Join(homeDir, "waveapps")
+	waveappsDir := filepath.Join(homeDir, AppStoreDirName)
 
 	if _, err := os.Stat(waveappsDir); os.IsNotExist(err) {
 		return []wshrpc.AppInfo{}, nil
@@ -521,7 +523,7 @@ func GetAppModTime(appId string) (int64, error) {
 		return 0, err
 	}
 
-	appPath := filepath.Join(homeDir, "waveapps", appNS, appName)
+	appPath := filepath.Join(homeDir, AppStoreDirName, appNS, appName)
 	appGoPath := filepath.Join(appPath, "app.go")
 
 	fileInfo, err := os.Stat(appGoPath)
@@ -539,7 +541,7 @@ func GetAppModTime(appId string) (int64, error) {
 
 func ListAllEditableApps() ([]wshrpc.AppInfo, error) {
 	homeDir := wavebase.GetHomeDir()
-	waveappsDir := filepath.Join(homeDir, "waveapps")
+	waveappsDir := filepath.Join(homeDir, AppStoreDirName)
 
 	if _, err := os.Stat(waveappsDir); os.IsNotExist(err) {
 		return []wshrpc.AppInfo{}, nil
@@ -657,7 +659,7 @@ func RenameLocalApp(appName string, newAppName string) error {
 	}
 
 	homeDir := wavebase.GetHomeDir()
-	waveappsDir := filepath.Join(homeDir, "waveapps")
+	waveappsDir := filepath.Join(homeDir, AppStoreDirName)
 
 	oldLocalDir := filepath.Join(waveappsDir, AppNSLocal, appName)
 	newLocalDir := filepath.Join(waveappsDir, AppNSLocal, newAppName)

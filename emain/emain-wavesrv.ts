@@ -24,7 +24,7 @@ import {
     WaveAppPathVarName,
     WaveAppResourcesPathVarName,
 } from "./emain-util";
-import { updater } from "./updater";
+// Removed updater import
 
 let isWaveSrvDead = false;
 let waveSrvProc: child_process.ChildProcessWithoutNullStreams | null = null;
@@ -59,6 +59,27 @@ export function runWaveSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promis
         pResolve = argResolve;
         pReject = argReject;
     });
+    
+    // Enhanced debugging for production issues
+    const waveSrvCmd = getWaveSrvPath();
+    console.log("=== WAVESRV STARTUP DEBUG INFO ===");
+    console.log("App is packaged:", electron.app.isPackaged);
+    console.log("Platform:", process.platform);
+    console.log("Architecture:", process.arch);
+    console.log("Resources path:", process.resourcesPath);
+    console.log("Exec path:", process.execPath);
+    console.log("Expected wavesrv path:", waveSrvCmd);
+    console.log("Wavesrv file exists:", require('fs').existsSync(waveSrvCmd));
+    
+    if (!electron.app.isPackaged) {
+        console.log("Development mode detected");
+    } else {
+        console.log("Production mode detected");
+        // REMOVED: Binary existence and executable checks that were blocking modified binaries
+        // These checks prevented running customized wavesrv binaries
+        console.log("Skipping binary verification checks for customized build");
+    }
+    
     const envCopy = { ...process.env };
     const xdgCurrentDesktop = getXdgCurrentDesktop();
     if (xdgCurrentDesktop != null) {
@@ -70,16 +91,17 @@ export function runWaveSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promis
     envCopy[WaveAuthKeyEnv] = AuthKey;
     envCopy[WaveDataHomeVarName] = getWaveDataDir();
     envCopy[WaveConfigHomeVarName] = getWaveConfigDir();
-    const waveSrvCmd = getWaveSrvPath();
+    if (electron.app.isPackaged === false) {
+        envCopy["WAVETERM_DEV"] = "1";
+    }
+    
     console.log("trying to run local server", waveSrvCmd);
     const proc = child_process.spawn(getWaveSrvPath(), {
         cwd: getWaveSrvCwd(),
         env: envCopy,
     });
     proc.on("exit", (e) => {
-        if (updater?.status == "installing") {
-            return;
-        }
+        // Removed updater status check
         console.log("wavesrv exited, shutting down");
         setForceQuit(true);
         isWaveSrvDead = true;

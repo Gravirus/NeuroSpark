@@ -4,10 +4,11 @@
 import { waveEventSubscribe } from "@/app/store/wps";
 import { RpcApi } from "@/app/store/wshclientapi";
 import * as electron from "electron";
+import * as path from "path";
 import { fireAndForget } from "../frontend/util/util";
 import { focusedBuilderWindow, getBuilderWindowById } from "./emain-builder";
 import { openBuilderWindow } from "./emain-ipc";
-import { isDev, unamePlatform } from "./emain-platform";
+import { getElectronAppBasePath, unamePlatform } from "./emain-platform";
 import { clearTabCache } from "./emain-tabview";
 import { decreaseZoomLevel, increaseZoomLevel } from "./emain-util";
 import {
@@ -20,7 +21,64 @@ import {
     WaveBrowserWindow,
 } from "./emain-window";
 import { ElectronWshClient } from "./emain-wsh";
-import { updater } from "./updater";
+// Removed updater import
+
+let currentAccentColor: string = "#2563eb";
+let colorPickerWindow: electron.BrowserWindow | null = null;
+
+function showAccentColorPicker() {
+    if (colorPickerWindow != null) {
+        colorPickerWindow.focus();
+        return;
+    }
+    colorPickerWindow = new electron.BrowserWindow({
+        width: 320,
+        height: 320,
+        resizable: false,
+        minimizable: false,
+        maximizable: false,
+        fullscreenable: false,
+        title: "Change Accent Color",
+        backgroundColor: "#1a1a1a",
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+    colorPickerWindow.setMenuBarVisibility(false);
+    colorPickerWindow.loadFile(path.join(getElectronAppBasePath(), "frontend", "color-picker.html"));
+    colorPickerWindow.on("closed", () => {
+        colorPickerWindow = null;
+    });
+}
+
+// Set up IPC handlers for the color picker
+electron.ipcMain.on("get-current-accent-color", (event) => {
+    event.returnValue = currentAccentColor;
+});
+
+electron.ipcMain.on("accent-color-result", (_event, color: string | null) => {
+    try {
+        if (colorPickerWindow != null) {
+            colorPickerWindow.close();
+            colorPickerWindow = null;
+        }
+        if (color != null) {
+            currentAccentColor = color;
+            // Broadcast to all renderer windows
+            const allWindows = getAllWaveWindows();
+            for (const ww of allWindows) {
+                try {
+                    ww.activeTabView?.webContents?.send("set-accent-color", color);
+                } catch (e) {
+                    console.log("error sending accent color to window", e);
+                }
+            }
+        }
+    } catch (e) {
+        console.log("error in accent-color-result handler", e);
+    }
+});
 
 type AppMenuCallbacks = {
     createNewWaveWindow: () => Promise<void>;
@@ -142,15 +200,15 @@ function makeFileMenu(
                 focusedWaveWindow?.close();
             },
         },
+        { type: "separator" },
+        { role: "quit" },
     ];
     const featureWaveAppBuilder = fullConfig?.settings?.["feature:waveappbuilder"];
-    if (isDev || featureWaveAppBuilder) {
-        fileMenu.splice(1, 0, {
-            label: "New WaveApp Builder Window",
-            accelerator: unamePlatform === "darwin" ? "Command+Shift+B" : "Alt+Shift+B",
-            click: () => openBuilderWindow(""),
-        });
-    }
+    fileMenu.splice(1, 0, {
+        label: "New WaveApp Builder Window",
+        accelerator: unamePlatform === "darwin" ? "Command+Shift+B" : "Alt+Shift+B",
+        click: () => openBuilderWindow(""),
+    });
     if (numWaveWindows == 0) {
         fileMenu.push({
             label: "New Window (hidden-1)",
@@ -179,10 +237,7 @@ function makeAppMenuItems(webContents: electron.WebContents): Electron.MenuItemC
             },
         },
         {
-            label: "Check for Updates",
-            click: () => {
-                fireAndForget(() => updater?.checkForUpdates(true));
-            },
+            // Removed Check for Updates menu item
         },
         { type: "separator" },
     ];
@@ -309,6 +364,17 @@ function makeViewMenu(
         },
         { type: "separator" },
         {
+            label: "Change Accent Color...",
+            click: () => {
+                try {
+                    showAccentColorPicker();
+                } catch (e) {
+                    console.log("error opening color picker", e);
+                }
+            },
+        },
+        { type: "separator" },
+        {
             role: "togglefullscreen",
         },
     ];
@@ -319,6 +385,8 @@ async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceOrBuilderId
     const webContents = workspaceOrBuilderId && getWebContentsByWorkspaceOrBuilderId(workspaceOrBuilderId);
     const appMenuItems = makeAppMenuItems(webContents);
 
+    // Check if this is a builder window
+    const isBuilderWindow = workspaceOrBuilderId != null && getBuilderWindowById(workspaceOrBuilderId) != null;
     const isBuilderWindowFocused = focusedBuilderWindow != null;
     let fullscreenOnLaunch = false;
     let fullConfig: FullConfigType = null;
@@ -343,18 +411,15 @@ async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceOrBuilderId
         { type: "separator" },
         { role: "front" },
     ];
-    const menuTemplate: Electron.MenuItemConstructorOptions[] = [
-        { role: "appMenu", submenu: appMenuItems },
-        { role: "fileMenu", submenu: fileMenu },
-        { role: "editMenu", submenu: editMenu },
-        { role: "viewMenu", submenu: viewMenu },
-    ];
-    if (workspaceMenu != null && !isBuilderWindowFocused) {
-        menuTemplate.push({
-            label: "Workspace",
-            id: "workspace-menu",
-            submenu: workspaceMenu,
-        });
+    const menuTemplate: Electron.MenuItemConstructorOptions[] = [];
+    
+    // Only show File, Edit, View menus for non-builder windows
+    if (!isBuilderWindow) {
+        menuTemplate.push(
+            { role: "fileMenu", submenu: fileMenu },
+            { role: "editMenu", submenu: editMenu },
+            { role: "viewMenu", submenu: viewMenu }
+        );
     }
     menuTemplate.push({
         role: "windowMenu",

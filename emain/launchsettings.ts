@@ -6,7 +6,7 @@ import path from "path";
 import { getWaveConfigDir } from "./emain-platform";
 
 /**
- * Get settings directly from the Wave Home directory on launch.
+ * Get settings directly from the NeuroSpark Home directory on launch.
  * Only use this when the app is first starting up. Otherwise, prefer the settings.GetFullConfig function.
  * @returns The initial launch settings for the application.
  */

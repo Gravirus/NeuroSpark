@@ -115,7 +115,7 @@ export class TermViewModel implements ViewModel {
             const blockData = get(this.blockAtom);
             const termMode = get(this.termMode);
             if (termMode == "vdom") {
-                return "Wave App";
+                return "NeuroSpark App";
             }
             if (blockData?.meta?.controller == "cmd") {
                 return "";
@@ -142,7 +142,7 @@ export class TermViewModel implements ViewModel {
                 rtn.push({
                     elemtype: "iconbutton",
                     icon: "bolt",
-                    title: "Switch to Wave App",
+                    title: "Switch to NeuroSpark App",
                     click: () => {
                         this.setTermMode("vdom");
                     },
@@ -388,7 +388,7 @@ export class TermViewModel implements ViewModel {
                 elemtype: "iconbutton",
                 icon: "sparkles",
                 className: "text-muted",
-                title: "No shell integration — Wave AI unable to run commands.",
+                title: "No shell integration — NeuroSpark AI unable to run commands.",
                 noAction: true,
             };
         }
@@ -397,19 +397,19 @@ export class TermViewModel implements ViewModel {
                 elemtype: "iconbutton",
                 icon: "sparkles",
                 className: "text-accent",
-                title: "Shell ready — Wave AI can run commands in this terminal.",
+                title: "Shell ready — NeuroSpark AI can run commands in this terminal.",
                 noAction: true,
             };
         }
         if (shellIntegrationStatus === "running-command") {
-            let title = "Shell busy — Wave AI unable to run commands while another command is running.";
+            let title = "Shell busy — NeuroSpark AI unable to run commands while another command is running.";
 
             if (this.termRef.current) {
                 const inAltBuffer = this.termRef.current.terminal?.buffer?.active?.type === "alternate";
                 const lastCommand = get(this.termRef.current.lastCommandAtom);
                 const blockingCmd = getBlockingCommand(lastCommand, inAltBuffer);
                 if (blockingCmd) {
-                    title = `Wave AI integration disabled while you're inside ${blockingCmd}.`;
+                    title = `NeuroSpark AI integration disabled while you're inside ${blockingCmd}.`;
                 }
             }
 
@@ -768,7 +768,7 @@ export class TermViewModel implements ViewModel {
             });
             menu.push({ type: "separator" });
             menu.push({
-                label: "Send to Wave AI",
+                label: "Send to NeuroSpark AI",
                 click: () => {
                     if (selection) {
                         const aiModel = WaveAIModel.getInstance();

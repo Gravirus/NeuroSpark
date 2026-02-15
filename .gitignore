@@ -10,6 +10,8 @@ bindings/
 bin/
 *.dmg
 *.exe
+*.msi
+*.zip
 .DS_Store
 *~
 out/
@@ -19,6 +21,9 @@ mikework/
 manifests/
 .env
 out
+github/
+installers/
+public/color-picker.html
 
 # Yarn Modern
 .pnp.*

@@ -12,16 +12,16 @@
     --color-muted-foreground: rgb(195, 200, 194);
     --color-secondary: rgb(195, 200, 194);
     --color-muted: rgb(140, 145, 140);
-    --color-accent-50: rgb(236, 253, 232);
-    --color-accent-100: rgb(209, 250, 202);
-    --color-accent-200: rgb(167, 243, 168);
-    --color-accent-300: rgb(110, 231, 133);
-    --color-accent-400: rgb(88, 193, 66); /* main accent color */
-    --color-accent-500: rgb(63, 162, 51);
-    --color-accent-600: rgb(47, 133, 47);
-    --color-accent-700: rgb(34, 104, 43);
-    --color-accent-800: rgb(22, 81, 35);
-    --color-accent-900: rgb(15, 61, 29);
+    --color-accent-50: rgb(37, 99, 235);
+    --color-accent-100: rgb(37, 99, 235);
+    --color-accent-200: rgb(37, 99, 235);
+    --color-accent-300: rgb(37, 99, 235);
+    --color-accent-400: rgb(37, 99, 235); /* main accent color */
+    --color-accent-500: rgb(37, 99, 235);
+    --color-accent-600: rgb(37, 99, 235);
+    --color-accent-700: rgb(37, 99, 235);
+    --color-accent-800: rgb(37, 99, 235);
+    --color-accent-900: rgb(37, 99, 235);
     --color-error: rgb(229, 77, 46);
     --color-warning: rgb(224, 185, 86);
     --color-success: rgb(78, 154, 6);
@@ -29,11 +29,11 @@
     --color-hover: rgba(255, 255, 255, 0.1);
     --color-border: rgba(255, 255, 255, 0.16);
     --color-modalbg: #232323;
-    --color-accentbg: rgba(88, 193, 66, 0.5);
+    --color-accentbg: rgba(37, 99, 235, 0.5);
     --color-hoverbg: rgba(255, 255, 255, 0.2);
     --color-highlightbg: rgba(255, 255, 255, 0.2);
-    --color-accent: rgb(88, 193, 66);
-    --color-accenthover: rgb(118, 223, 96);
+    --color-accent: rgb(37, 99, 235);
+    --color-accenthover: rgb(67, 129, 255);
 
     --font-sans: "Inter", sans-serif;
     --font-mono: "Hack", monospace;
@@ -80,10 +80,7 @@
     --zoomfactor-inv: 1;
 }
 
-/* Chart tooltip styling for sysinfo plots */
-svg [aria-label="tip"] g path {
-    color: var(--border-color);
-}
+
 
 /* Monaco editor scrollbar styling */
 .monaco-editor .slider {

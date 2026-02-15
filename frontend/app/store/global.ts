@@ -92,6 +92,19 @@ function initGlobalAtoms(initOpts: GlobalInitOptions) {
         console.log("failed to initialize onMenuItemAbout handler", e);
     }
 
+    try {
+        getApi().onSetAccentColor((color: string) => {
+            if (color && typeof color === "string") {
+                document.documentElement.style.setProperty("--accent-color", color);
+                document.documentElement.style.setProperty("--tab-green", color);
+                document.documentElement.style.setProperty("--link-color", color);
+                document.documentElement.style.setProperty("--conn-icon-color-8", color);
+            }
+        });
+    } catch (e) {
+        console.log("failed to initialize onSetAccentColor handler", e);
+    }
+
     const workspaceAtom: Atom<Workspace> = atom((get) => {
         const windowData = WOS.getObjectValue<WaveWindow>(WOS.makeORef("window", get(windowIdAtom)), get);
         if (windowData == null) {
@@ -119,15 +132,7 @@ function initGlobalAtoms(initOpts: GlobalInitOptions) {
     // this is *the* tab that this tabview represents.  it should never change.
     const staticTabIdAtom: Atom<string> = atom(initOpts.tabId);
     const controlShiftDelayAtom = atom(false);
-    const updaterStatusAtom = atom<UpdaterStatus>("up-to-date") as PrimitiveAtom<UpdaterStatus>;
-    try {
-        globalStore.set(updaterStatusAtom, getApi().getUpdaterStatus());
-        getApi().onUpdaterStatusChange((status) => {
-            globalStore.set(updaterStatusAtom, status);
-        });
-    } catch (e) {
-        console.log("failed to initialize updaterStatusAtom", e);
-    }
+    // Removed updaterStatusAtom
 
     const reducedMotionSettingAtom = atom((get) => get(settingsAtom)?.["window:reducedmotion"]);
     const reducedMotionSystemPreferenceAtom = atom(false);
@@ -185,7 +190,6 @@ function initGlobalAtoms(initOpts: GlobalInitOptions) {
         isFullScreen: isFullScreenAtom,
         zoomFactorAtom,
         controlShiftDelayAtom,
-        updaterStatusAtom,
         prefersReducedMotionAtom,
         documentHasFocus: documentHasFocusAtom,
         modalOpen,

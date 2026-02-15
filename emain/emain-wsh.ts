@@ -5,7 +5,7 @@ import { WindowService } from "@/app/store/services";
 import { RpcResponseHelper, WshClient } from "@/app/store/wshclient";
 import { RpcApi } from "@/app/store/wshclientapi";
 import { Notification, net, safeStorage, shell } from "electron";
-import { getResolvedUpdateChannel } from "emain/updater";
+// Removed updater import
 import { unamePlatform } from "./emain-platform";
 import { getWebContentsByBlockId, webGetSelector } from "./emain-web";
 import { createBrowserWindow, getWaveWindowById, getWaveWindowByWorkspaceId } from "./emain-window";
@@ -39,9 +39,7 @@ export class ElectronWshClientType extends WshClient {
         }).show();
     }
 
-    async handle_getupdatechannel(rh: RpcResponseHelper): Promise<string> {
-        return getResolvedUpdateChannel();
-    }
+    // Removed handle_getupdatechannel
 
     async handle_focuswindow(rh: RpcResponseHelper, windowId: string) {
         console.log(`focuswindow ${windowId}`);
@@ -103,7 +101,9 @@ export class ElectronWshClientType extends WshClient {
     }
 
     async handle_networkonline(rh: RpcResponseHelper): Promise<boolean> {
-        return net.isOnline();
+        // Всегда возвращаем true чтобы избежать блокировок в разных регионах
+        return true;
+        // Вместо: return net.isOnline();
     }
 
     async handle_electronsystembell(rh: RpcResponseHelper): Promise<void> {

@@ -19,6 +19,8 @@ const AIPANEL_DEFAULTWIDTH = 300;
 const AIPANEL_DEFAULTWIDTHRATIO = 0.33;
 const AIPANEL_MINWIDTH = 300;
 const AIPANEL_MAXWIDTHRATIO = 0.66;
+// Fixed pixel width for the NeuroSpark (WaveAI) panel. Use 600px as requested.
+const AIPANEL_FIXED_WIDTH_PX = 600;
 
 class WorkspaceLayoutModel {
     private static instance: WorkspaceLayoutModel | null = null;
@@ -209,10 +211,13 @@ class WorkspaceLayoutModel {
 
     getClampedAIPanelWidth(width: number, windowWidth: number): number {
         const maxWidth = this.getMaxAIPanelWidth(windowWidth);
+        // Prefer the fixed width, but clamp to the maximum allowed by window size.
+        const desired = Math.min(AIPANEL_FIXED_WIDTH_PX, maxWidth);
         if (AIPANEL_MINWIDTH > maxWidth) {
             return AIPANEL_MINWIDTH;
         }
-        return Math.max(AIPANEL_MINWIDTH, Math.min(width, maxWidth));
+        // Return the fixed/clamped value regardless of the provided width.
+        return Math.max(AIPANEL_MINWIDTH, Math.min(desired, maxWidth));
     }
 
     getAIPanelVisible(): boolean {
@@ -262,9 +267,8 @@ class WorkspaceLayoutModel {
 
     getAIPanelWidth(): number {
         this.initializeFromTabMeta();
-        if (this.aiPanelWidth == null) {
-            this.aiPanelWidth = Math.max(AIPANEL_DEFAULTWIDTH, window.innerWidth * AIPANEL_DEFAULTWIDTHRATIO);
-        }
+        // Always return the fixed AI panel width (in pixels).
+        this.aiPanelWidth = AIPANEL_FIXED_WIDTH_PX;
         return this.aiPanelWidth;
     }
 

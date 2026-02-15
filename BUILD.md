@@ -1,6 +1,6 @@
-# Building Wave Terminal
+# Building NeuroSpark
 
-These instructions are for setting up dependencies and building Wave Terminal from source on macOS, Linux, and Windows.
+These instructions are for setting up dependencies and building NeuroSpark from source on macOS, Linux, and Windows.
 
 ## Prerequisites
 
@@ -73,17 +73,6 @@ See NodeJS's website for platform-specific instructions: https://nodejs.org/en/d
 
 We now use `npm`, so you can just run an `npm install` to install node dependencies.
 
-## Clone the Repo
-
-```sh
-git clone git@github.com:wavetermdev/waveterm.git
-```
-
-or
-
-```sh
-git clone https://github.com/wavetermdev/waveterm.git
-```
 
 ## Install code dependencies
 
@@ -135,4 +124,4 @@ You can use the regular Chrome DevTools to debug the frontend application. You c
 
 ### Backend logs
 
-Backend logs for the development version of Wave can be found at `~/.waveterm-dev/waveapp.log`. Both the NodeJS backend from Electron and the main Go backend will log here.
+Backend logs for the development version of NeuroSpark can be found at `~/.neurospark-dev/neurospark.log`. Both the NodeJS backend from Electron and the main Go backend will log here.

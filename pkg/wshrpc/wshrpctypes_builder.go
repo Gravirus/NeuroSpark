@@ -16,6 +16,7 @@ type WshRpcBuilderInterface interface {
 	WriteAppFileCommand(ctx context.Context, data CommandWriteAppFileData) error
 	WriteAppGoFileCommand(ctx context.Context, data CommandWriteAppGoFileData) (*CommandWriteAppGoFileRtnData, error)
 	DeleteAppFileCommand(ctx context.Context, data CommandDeleteAppFileData) error
+	DeleteAppCommand(ctx context.Context, data CommandDeleteAppData) error
 	RenameAppFileCommand(ctx context.Context, data CommandRenameAppFileData) error
 	WriteAppSecretBindingsCommand(ctx context.Context, data CommandWriteAppSecretBindingsData) error
 	DeleteBuilderCommand(ctx context.Context, builderId string) error
@@ -88,6 +89,10 @@ type CommandWriteAppGoFileRtnData struct {
 type CommandDeleteAppFileData struct {
 	AppId    string `json:"appid"`
 	FileName string `json:"filename"`
+}
+
+type CommandDeleteAppData struct {
+	AppId string `json:"appid"`
 }
 
 type CommandRenameAppFileData struct {

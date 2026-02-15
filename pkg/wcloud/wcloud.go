@@ -71,7 +71,7 @@ func CacheAndRemoveEnvVars() error {
 }
 
 func checkEndpointVar(endpoint string, debugName string, varName string) error {
-	if !wavebase.IsDevMode() {
+	if wavebase.IsDevMode() {
 		return nil
 	}
 	if endpoint == "" || !strings.HasPrefix(endpoint, "https://") {
@@ -81,7 +81,8 @@ func checkEndpointVar(endpoint string, debugName string, varName string) error {
 }
 
 func checkWSEndpointVar(endpoint string, debugName string, varName string) error {
-	if !wavebase.IsDevMode() {
+	isDev := wavebase.IsDevMode()
+	if isDev {
 		return nil
 	}
 	log.Printf("checking endpoint %q\n", endpoint)
@@ -100,8 +101,13 @@ func GetEndpoint() string {
 }
 
 func GetWSEndpoint() string {
+	// Проверяем переменную окружения первым делом
+	if customEndpoint := os.Getenv("WAVETERM_AI_PROXY_URL"); customEndpoint != "" {
+		return customEndpoint
+	}
+
 	if !wavebase.IsDevMode() {
-		return WCloudWSEndpoint
+		return WCloudWSEndpoint // Это "wss://wsapi.waveterm.dev/"
 	}
 	endpoint := WCloudWSEndpoint_VarCache
 	return endpoint

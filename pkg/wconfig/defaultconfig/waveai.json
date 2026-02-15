@@ -1,9 +1,9 @@
 {
     "waveai@quick": {
-        "display:name": "Quick",
+        "display:name": "gpt-5-mini",
         "display:order": -3,
         "display:icon": "bolt",
-        "display:description": "Fastest responses (gpt-5-mini)",
+        "display:description": "Fastest responses",
         "ai:provider": "wave",
         "ai:apitype": "openai-responses",
         "ai:model": "gpt-5-mini",
@@ -13,10 +13,10 @@
         "ai:switchcompat": ["wavecloud"]
     },
     "waveai@balanced": {
-        "display:name": "Balanced",
+        "display:name": "gpt-5.1",
         "display:order": -2,
         "display:icon": "sparkles",
-        "display:description": "Good mix of speed and accuracy\n(gpt-5.1 with minimal thinking)",
+        "display:description": "Min thinking)",
         "ai:provider": "wave",
         "ai:apitype": "openai-responses",
         "ai:model": "gpt-5.1",
@@ -27,10 +27,10 @@
         "ai:switchcompat": ["wavecloud"]
     },
     "waveai@deep": {
-        "display:name": "Deep",
+        "display:name": "gpt-5.1+",
         "display:order": -1,
         "display:icon": "lightbulb",
-        "display:description": "Slower but most capable\n(gpt-5.1 with full reasoning)",
+        "display:description": "Full reasoning)",
         "ai:provider": "wave",
         "ai:apitype": "openai-responses",
         "ai:model": "gpt-5.1",

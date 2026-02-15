@@ -1,0 +1,101 @@
+// Copyright 2024, Command Line Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+.webview,
+.webview-container {
+    height: 100%;
+    width: 100%;
+    border: none !important;
+    outline: none !important;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    user-select: none;
+    border-radius: 0 0 var(--block-border-radius) var(--block-border-radius);
+
+    // try to force pixel alignment to prevent
+    // subpixel rendering artifacts
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+}
+
+.webview-error {
+    display: flex;
+    position: absolute;
+    background-color: black;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 100;
+    div {
+        font-size: x-large;
+        color: var(--error-color);
+        display: flex;
+        margin: auto;
+        padding: 30px;
+    }
+}
+
+.block-frame-div-url {
+    background: rgba(255, 255, 255, 0.1);
+
+    input {
+        opacity: 1;
+    }
+
+    .wave-iconbutton {
+        width: fit-content !important;
+        margin-right: 5px;
+    }
+}
+
+.webview-tabs-header {
+    display: flex;
+    background: #1a1a1a; // Цвет фона терминала
+    padding: 4px 4px 0 4px;
+    gap: 2px;
+    border-bottom: 1px solid #333;
+
+    .webview-tab {
+        padding: 4px 12px;
+        background: #2a2a2a;
+        color: #ccc;
+        border-radius: 6px 6px 0 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 150px;
+        font-size: 12px;
+
+        &.active {
+            background: #383838;
+            color: #fff;
+        }
+
+        .tab-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .close-tab:hover {
+            color: #ff5555;
+        }
+    }
+
+    .add-tab-btn {
+        padding: 4px 10px;
+        cursor: pointer;
+        color: #aaa;
+        &:hover { color: #fff; }
+    }
+}
+
+.hidden-webview {
+    visibility: hidden;
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+}

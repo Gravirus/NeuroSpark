@@ -233,7 +233,12 @@ const DisplayNode = ({ layoutModel, node }: DisplayNodeProps) => {
     const [{ isDragging }, drag, dragPreview] = useDrag(
         () => ({
             type: tileItemType,
-            canDrag: () => !(isEphemeral || isMagnified),
+            canDrag: () => {
+                // Prevent dragging if the node is ephemeral, magnified, or is the NeuroSpark (waveai) panel.
+                const nodeData = node.data as TabLayoutData | undefined;
+                const isNeuroSpark = nodeData?.view === "waveai";
+                return !(isEphemeral || isMagnified || isNeuroSpark);
+            },
             item: () => node,
             collect: (monitor) => ({
                 isDragging: monitor.isDragging(),

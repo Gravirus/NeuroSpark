@@ -29,6 +29,18 @@ import (
 	"github.com/wavetermdev/waveterm/tsunami/build"
 )
 
+// isMoveFilesBackError checks if an error is specifically related to moving files back
+// from the temporary directory, which shouldn't fail the entire build if the binary was created
+func isMoveFilesBackError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errStr := err.Error()
+	return strings.Contains(errStr, "failed to move files back") ||
+		strings.Contains(errStr, "failed to copy go.mod back") ||
+		strings.Contains(errStr, "invalid argument")
+}
+
 const (
 	BuilderStatus_Init     = "init"
 	BuilderStatus_Building = "building"
@@ -246,10 +258,20 @@ func (bc *BuilderController) buildAndRun(ctx context.Context, appId string, buil
 	}
 
 	if err != nil {
-		bc.handleBuildError(fmt.Errorf("build failed: %w", err), resultCh)
-		return
+		// Check if this is a "move files back" error, which shouldn't fail the entire build
+		// if the binary was successfully built
+		if isMoveFilesBackError(err) {
+			// Log warning but don't fail the build
+			log.Printf("Warning: %v (but build succeeded)", err)
+			// Continue with the rest of the process
+		} else {
+			// This is a real build error, fail the build
+			bc.handleBuildError(fmt.Errorf("build failed: %w", err), resultCh)
+			return
+		}
 	}
 
+	// Even if there was a move files back error, check if the binary exists
 	info, err := os.Stat(cachePath)
 	if err != nil {
 		bc.handleBuildError(fmt.Errorf("build output not found: %w", err), resultCh)

@@ -16,7 +16,7 @@ import { IconButton } from "../element/iconbutton";
 import { WorkspaceService } from "../store/services";
 import { Tab } from "./tab";
 import "./tabbar.scss";
-import { UpdateStatusBanner } from "./updatebanner";
+// Removed UpdateStatusBanner import
 import { WorkspaceSwitcher } from "./workspaceswitcher";
 
 const TabDefaultWidth = 130;
@@ -57,11 +57,16 @@ const WaveAIButton = memo(() => {
 
     return (
         <div
-            className={`flex h-[26px] px-1.5 justify-end items-center rounded-md mr-1 box-border cursor-pointer bg-hover hover:bg-hoverbg transition-colors text-[12px] ${aiPanelOpen ? "text-accent" : "text-secondary"}`}
-            style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+            className={`flex h-[26px] px-1.5 justify-end items-center rounded-md mr-1 box-border cursor-pointer bg-hover hover:bg-hoverbg transition-colors text-[12px] ${aiPanelOpen ? "" : "text-secondary"}`}
+            style={
+                {
+                    WebkitAppRegion: "no-drag",
+                    ...(aiPanelOpen ? { color: "var(--color-accent)" } : {}),
+                } as React.CSSProperties
+            }
             onClick={onClick}
         >
-            <i className="fa fa-sparkles" />
+            <i className="fa fa-bolt" />
             <span className="font-bold ml-1 -top-px font-mono">AI</span>
         </div>
     );
@@ -688,7 +693,6 @@ const TabBar = memo(({ workspace }: TabBarProps) => {
             </div>
             <IconButton className="add-tab" ref={addBtnRef} decl={addtabButtonDecl} />
             <div className="tab-bar-right">
-                <UpdateStatusBanner ref={updateStatusBannerRef} />
                 <ConfigErrorIcon buttonRef={configErrorButtonRef} />
                 <div
                     ref={draggerRightRef}

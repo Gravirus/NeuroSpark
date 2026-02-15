@@ -382,7 +382,16 @@ export function resizeNode(layoutState: LayoutTreeState, action: LayoutTreeResiz
     if (!action.resizeOperations) {
         console.error("invalid resizeNode operation. nodeSizes array must be defined.");
     }
-    for (const resize of action.resizeOperations) {
+    // Filter out any resize operations that target the NeuroSpark (waveai) node
+    const filtered = action.resizeOperations.filter((op) => {
+        const node = findNode(layoutState.rootNode, op.nodeId);
+        return !(node?.data?.view === "waveai");
+    });
+    if (filtered.length === 0) {
+        // Nothing to resize after filtering
+        return;
+    }
+    for (const resize of filtered) {
         if (!resize.nodeId || resize.size < 0 || resize.size > 100) {
             console.error("invalid resizeNode operation. nodeId must be defined and size must be between 0 and 100");
             return;

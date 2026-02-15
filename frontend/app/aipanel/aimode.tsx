@@ -21,37 +21,49 @@ interface AIModeMenuItemProps {
     isLast?: boolean;
 }
 
-const AIModeMenuItem = memo(({ config, isSelected, isDisabled, isPremiumDisabled, onClick, isFirst, isLast }: AIModeMenuItemProps) => {
-    return (
-        <button
-            key={config.mode}
-            onClick={onClick}
-            disabled={isDisabled}
-            className={cn(
-                "w-full flex flex-col gap-0.5 px-3 transition-colors text-left",
-                isFirst ? "pt-1 pb-0.5" : isLast ? "pt-0.5 pb-1" : "pt-0.5 pb-0.5",
-                isDisabled ? "text-zinc-500" : "text-zinc-300 hover:bg-zinc-700 cursor-pointer"
-            )}
-        >
-            <div className="flex items-center gap-2 w-full">
-                <i className={makeIconClass(config["display:icon"] || "sparkles", false)}></i>
-                <span className={cn("text-sm", isSelected && "font-bold")}>
-                    {getModeDisplayName(config)}
-                    {isPremiumDisabled && " (premium)"}
-                </span>
-                {isSelected && <i className="fa fa-check ml-auto"></i>}
-            </div>
-            {config["display:description"] && (
-                <div
-                    className={cn("text-xs pl-5", isDisabled ? "text-gray-500" : "text-muted")}
-                    style={{ whiteSpace: "pre-line" }}
-                >
-                    {config["display:description"]}
+const AIModeMenuItem = memo(
+    ({ config, isSelected, isDisabled, isPremiumDisabled, onClick, isFirst, isLast }: AIModeMenuItemProps) => {
+        return (
+            <button
+                key={config.mode}
+                onClick={onClick}
+                disabled={isDisabled}
+                className={cn(
+                    "w-full flex flex-col gap-0.5 px-3 transition-colors text-left",
+                    isFirst ? "pt-1 pb-0.5" : isLast ? "pt-0.5 pb-1" : "pt-0.5 pb-0.5",
+                    isDisabled ? "text-zinc-500" : "text-zinc-300 hover:bg-zinc-700 cursor-pointer"
+                )}
+            >
+                <div className="flex items-center gap-2 w-full">
+                    <i className={makeIconClass(config["display:icon"] || "sparkles", false)}></i>
+                    <span className={cn("text-sm", isSelected && "font-bold")}>
+                        {getModeDisplayName(config)}
+                        {isPremiumDisabled && " (premium)"}
+                    </span>
+                    {isSelected && <i className="fa fa-check ml-auto"></i>}
                 </div>
-            )}
-        </button>
-    );
-});
+                {(() => {
+                    let description = config["display:description"];
+                    if (config.mode === "waveai@quick") description = "Quick Model (WaveSpeed Provider)";
+                    if (config.mode === "waveai@balanced") description = "Min. Thinking (WaveSpeed Provider)";
+                    if (config.mode === "waveai@deep") description = "Full Reasoning (WaveSpeed Provider)";
+
+                    if (description) {
+                        return (
+                            <div
+                                className={cn("text-xs pl-5", isDisabled ? "text-gray-500" : "text-muted")}
+                                style={{ whiteSpace: "pre-line" }}
+                            >
+                                {description}
+                            </div>
+                        );
+                    }
+                    return null;
+                })()}
+            </button>
+        );
+    }
+);
 
 AIModeMenuItem.displayName = "AIModeMenuItem";
 
@@ -120,7 +132,7 @@ function computeWaveCloudSections(
 
     if (waveProviderConfigs.length > 0) {
         sections.push({
-            sectionName: "Wave AI Cloud",
+            sectionName: "NeuroSpark AI Cloud",
             configs: waveProviderConfigs,
             noTelemetry: !telemetryEnabled,
         });
@@ -173,7 +185,10 @@ export const AIModeDropdown = memo(({ compatibilityMode = false }: AIModeDropdow
     };
 
     const displayConfig = aiModeConfigs[currentMode];
-    const displayName = displayConfig ? getModeDisplayName(displayConfig) : `Invalid (${currentMode})`;
+    const displayName =
+        displayConfig || currentMode
+            ? getModeDisplayName({ ...displayConfig, mode: currentMode } as any)
+            : `Invalid (${currentMode})`;
     const displayIcon = displayConfig ? displayConfig["display:icon"] || "sparkles" : "question";
     const resolvedConfig = waveaiModeConfigs[currentMode];
     const hasToolsSupport = resolvedConfig && resolvedConfig["ai:capabilities"]?.includes("tools");
@@ -230,8 +245,8 @@ export const AIModeDropdown = memo(({ compatibilityMode = false }: AIModeDropdow
                     content={
                         <div className="max-w-xs">
                             Warning: This custom mode was configured without the "tools" capability in the
-                            "ai:capabilities" array. Without tool support, Wave AI will not be able to interact with
-                            widgets or files.
+                            "ai:capabilities" array. Without tool support, NeuroSpark AI will not be able to interact
+                            with widgets or files.
                         </div>
                     }
                     placement="bottom"
@@ -274,7 +289,7 @@ export const AIModeDropdown = memo(({ compatibilityMode = false }: AIModeDropdow
                                                     onClick={handleEnableTelemetry}
                                                     className="text-center text-[11px] text-green-300 hover:text-green-200 pb-1 cursor-pointer transition-colors w-full"
                                                 >
-                                                    (enable telemetry to unlock Wave AI Cloud)
+                                                    (enable telemetry to unlock NeuroSpark AI Cloud)
                                                 </button>
                                             )}
                                         </>

@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -115,7 +116,49 @@ func FileMustNotExist(path string) error {
 }
 
 func copyFile(srcPath, destPath string) error {
+	// For Windows compatibility, use direct file operations instead of os.DirFS("/")
+	// which doesn't work correctly with Windows absolute paths
+	if runtime.GOOS == "windows" {
+		return copyFileWindows(srcPath, destPath)
+	}
 	return CopyFileFromFS(os.DirFS("/"), strings.TrimPrefix(srcPath, "/"), destPath)
+}
+
+func copyFileWindows(srcPath, destPath string) error {
+	// Open source file directly
+	srcFile, err := os.Open(srcPath)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	// Get source file info
+	srcInfo, err := os.Stat(srcPath)
+	if err != nil {
+		return err
+	}
+
+	// Create destination directory if it doesn't exist
+	destDir := filepath.Dir(destPath)
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return err
+	}
+
+	// Create destination file
+	destFile, err := os.Create(destPath)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	// Copy content
+	_, err = io.Copy(destFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	// Set the same mode as source file
+	return os.Chmod(destPath, srcInfo.Mode())
 }
 
 func listGoFilesInDir(dirPath string) ([]string, error) {

@@ -4,7 +4,6 @@
 import { useAtomValue } from "jotai";
 import { memo, useEffect, useRef, useState } from "react";
 import { AIMessage } from "./aimessage";
-import { AIModeDropdown } from "./aimode";
 import { type WaveUIMessage } from "./aitypes";
 import { WaveAIModel } from "./waveai-model";
 
@@ -84,9 +83,6 @@ export const AIPanelMessages = memo(({ messages, status, onContextMenu }: AIPane
 
     return (
         <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-2 space-y-4" onContextMenu={onContextMenu}>
-            <div className="mb-2">
-                <AIModeDropdown compatibilityMode={true} />
-            </div>
             {messages.map((message, index) => {
                 const isLastMessage = index === messages.length - 1;
                 const isStreaming = status === "streaming" && isLastMessage && message.role === "assistant";
